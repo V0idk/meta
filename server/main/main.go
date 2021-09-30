@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"google.golang.org/grpc"
 	"log"
 	self_error "meta/error"
 	pb "meta/msg"
-	. "meta/processor"
-	. "meta/processor/grpc"
+	. "meta/rpc"
+	. "meta/rpc/grpc"
 	"meta/server/config"
 	"net"
 	"os"
@@ -16,8 +17,8 @@ import (
 //====================================配置文件加载==========================================
 var serverConfig *config.ServerConfig
 var msgTypeMap = make(map[string]config.MsgTypeConfig)
-var processConfigMap = make(map[string]config.ProcessConfig)
-var processMap = make(map[string]Processor)
+var rpcConfigMap = make(map[string]config.RpcConfig)
+var rpcMap = make(map[string]Rpc)
 
 func loadConfig() {
 	serverConfig = config.GetServerConfig(os.Args[1])
@@ -27,14 +28,17 @@ func loadConfig() {
 	for _, item := range serverConfig.Msgtype {
 		msgTypeMap[item.Type] = item
 	}
-	for _, item := range serverConfig.Process {
-		processConfigMap[item.Type] = item
+	for _, item := range serverConfig.Rpc {
+		rpcConfigMap[item.Type] = item
 	}
-	for _, v := range processConfigMap {
+	for _, v := range rpcConfigMap {
 		if v.Type == "grpc" {
-			processMap[v.Name] = &GrpcProcessor{
-				Location: processConfigMap["grpc"].Args,
+			grpc := Grpc{}
+			err := json.Unmarshal(rpcConfigMap["grpc"].Param, &grpc)
+			if err != nil {
+				log.Fatalf("failed to Unmarshal grpc")
 			}
+			rpcMap[v.Name] = &grpc
 		} else {
 			log.Printf("Unsupport %s", v.Type)
 		}
@@ -55,12 +59,12 @@ func (s *server) Dispatch(ctx context.Context, in *pb.Msg) (*pb.Msg, error) {
 		return nil, &self_error.MSGTYPE_NOT_FOUND{}
 	}
 
-	if _, ok := processMap[msgTypeMap[in.Type].Process]; !ok {
-		log.Printf("Failed to find process: %s", in.Type)
+	if _, ok := rpcMap[msgTypeMap[in.Type].Rpc]; !ok {
+		log.Printf("Failed to find rpc: %s", in.Type)
 		return nil, &self_error.PROCESS_NOT_FOUND{}
 	}
-	process := processMap[msgTypeMap[in.Type].Process]
-	msg, err := process.Send(in)
+	rpc := rpcMap[msgTypeMap[in.Type].Rpc]
+	msg, err := rpc.Send(in)
 	if err != nil {
 		log.Printf("Server fail to dispatch %s", in)
 		return nil, nil

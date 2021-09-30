@@ -5,10 +5,10 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"log"
-	. "meta/manager"
-	. "meta/manager/config"
-	manager_msg "meta/manager/msg"
 	pb "meta/msg"
+	. "meta/processor/manager"
+	. "meta/processor/manager/config"
+	manager_msg "meta/processor/manager/msg"
 	"net"
 	"os"
 )

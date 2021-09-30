@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"log"
 	self_error "meta/error"
-	. "meta/manager/config"
-	manager_msg "meta/manager/msg"
 	pb "meta/msg"
-	. "meta/processor"
-	. "meta/processor/grpc"
+	. "meta/processor/manager/config"
+	manager_msg "meta/processor/manager/msg"
+	. "meta/rpc"
+	. "meta/rpc/grpc"
 	"time"
 )
 
@@ -16,7 +16,7 @@ import (
 //main除外
 type EntryManager struct {
 	Entry       manager_msg.Entry
-	Process     Processor
+	Rpc         Rpc
 	SuccessTime time.Time
 }
 
@@ -29,7 +29,7 @@ func (e *EntryManager) DialHeartbeat(src manager_msg.Entry) (*pb.Msg, error) {
 		log.Printf("could not marshal: %s", content)
 		return nil, err
 	}
-	msg, err := e.Process.Send(&pb.Msg{
+	msg, err := e.Rpc.Send(&pb.Msg{
 		Type:    pb.HEARTBEAT.Id,
 		Content: result,
 	})
@@ -63,7 +63,7 @@ func (m *Manager) Heartbeat(in *pb.Msg) (*pb.Msg, error) {
 		// 不存在则增加entry，且启动后台心跳检测
 		tmp := &EntryManager{
 			Entry:       content.Entry,
-			Process:     &GrpcProcessor{content.Entry.Location},
+			Rpc:         &Grpc{content.Entry.Location},
 			SuccessTime: time.Now(),
 		}
 		m.Cache[content.Entry.Id] = tmp

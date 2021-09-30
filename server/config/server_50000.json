@@ -3,15 +3,17 @@
   "msgtype": [
     {
       "type": "heartbeat",
-      "process": "manager"
+      "rpc": "manager"
     }
   ],
-  "process": [
+  "rpc": [
     {
       "name": "manager",
       "type": "grpc",
-      "command": "manager/main/main.exe",
-      "args": ":50010"
+      "param": {
+        "location": "127.0.0.1:50010"
+      },
+      "command": "manager/main/main.exe XXXXX"
     }
   ]
 }
