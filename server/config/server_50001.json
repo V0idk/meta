@@ -1,0 +1,17 @@
+{
+  "location": "127.0.0.1:50001",
+  "msgtype": [
+    {
+      "type": "heartbeat",
+      "process": "manager"
+    }
+  ],
+  "process": [
+    {
+      "name": "manager",
+      "type": "grpc",
+      "command": "manager/main/main.exe",
+      "args": ":50011"
+    }
+  ]
+}
