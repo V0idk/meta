@@ -8,7 +8,8 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	pb "meta/msg"
-	manager_msg "meta/processor/manager/msg"
+	. "meta/processor/command_executor/msg"
+	. "meta/processor/manager/msg"
 	"strconv"
 	"sync"
 	"time"
@@ -32,11 +33,7 @@ func dial(type_param string, content []byte) {
 		Type:    type_param,
 		Content: content,
 	})
-	if err != nil {
-		log.Printf("could not dial: %v", err)
-		return
-	}
-	log.Printf("dial result: %s", msg)
+	log.Printf("dial result: %s, err: %s", msg, err)
 }
 
 var wg sync.WaitGroup
@@ -56,7 +53,7 @@ func testQuery() {
 
 //==============================
 func testManager() {
-	content := &manager_msg.HeartbeatContent{}
+	content := &HeartbeatContent{}
 	content.Entry.Id = uuid.New().String()
 	content.Entry.Location = "127.0.0.1:50001"
 	result, err := json.Marshal(content)
@@ -67,6 +64,17 @@ func testManager() {
 	dial(pb.HEARTBEAT.Id, result)
 }
 
+func testCommand() {
+	content := &CommandContent{}
+	content.Command = "ls"
+	result, err := json.Marshal(content)
+	if err != nil {
+		log.Printf("could not marshal: %s", content)
+		return
+	}
+	dial(pb.COMMAND.Id, result)
+}
+
 func main() {
-	testManager()
+	testCommand()
 }

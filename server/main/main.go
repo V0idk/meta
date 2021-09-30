@@ -29,12 +29,12 @@ func loadConfig() {
 		msgTypeMap[item.Type] = item
 	}
 	for _, item := range serverConfig.Rpc {
-		rpcConfigMap[item.Type] = item
+		rpcConfigMap[item.Name] = item
 	}
 	for _, v := range rpcConfigMap {
 		if v.Type == "grpc" {
 			grpc := Grpc{}
-			err := json.Unmarshal(rpcConfigMap["grpc"].Param, &grpc)
+			err := json.Unmarshal(rpcConfigMap[v.Name].Param, &grpc)
 			if err != nil {
 				log.Fatalf("failed to Unmarshal grpc")
 			}
@@ -64,13 +64,7 @@ func (s *server) Dispatch(ctx context.Context, in *pb.Msg) (*pb.Msg, error) {
 		return nil, &self_error.PROCESS_NOT_FOUND{}
 	}
 	rpc := rpcMap[msgTypeMap[in.Type].Rpc]
-	msg, err := rpc.Send(in)
-	if err != nil {
-		log.Printf("Server fail to dispatch %s", in)
-		return nil, nil
-	}
-	log.Printf("Server succues to dispatch %s", in)
-	return msg, err
+	return rpc.Send(in)
 }
 
 func main() {

@@ -5,4 +5,5 @@ type MsgType struct {
 }
 
 var HEARTBEAT = MsgType{Id: "heartbeat"}
+var COMMAND = MsgType{Id: "command"}
 var OK = MsgType{Id: "ok"}

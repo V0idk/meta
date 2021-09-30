@@ -2,13 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"log"
 	pb "meta/msg"
-	. "meta/processor/manager"
-	. "meta/processor/manager/config"
-	. "meta/processor/manager/msg"
+	. "meta/processor/command_executor"
+	. "meta/processor/command_executor/config"
 	"net"
 	"os"
 )
@@ -17,34 +15,27 @@ type server struct {
 	pb.UnimplementedMsgServiceServer
 }
 
-var m Manager
+var c CommandExecutor
 
 func (s *server) Dispatch(ctx context.Context, in *pb.Msg) (*pb.Msg, error) {
 	log.Printf("Manage receive: %s", in)
-	return m.Dispatch(in)
+	return c.Dispatch(in)
 }
 
-var managerConfig *ManagerConfig
+var commandExecutorConfig *CommandExecutorConfig
 
 func loadConfig() {
-	managerConfig = GetManagerConfig(os.Args[1])
-	if managerConfig == nil {
+	commandExecutorConfig = GetCommandExecutorConfig(os.Args[1])
+	if commandExecutorConfig == nil {
 		log.Fatalf("failed to GetServerConfig")
 	}
-	m = Manager{
-		Entry: Entry{
-			Id:       uuid.New().String(),
-			Location: managerConfig.Location,
-		},
-		Cache:         make(map[string]*EntryManager),
-		ManagerConfig: *managerConfig,
-	}
+	c = CommandExecutor{}
 }
 
 //GOMAXPROCS
 func main() {
 	loadConfig()
-	lis, err := net.Listen("tcp", managerConfig.Location)
+	lis, err := net.Listen("tcp", commandExecutorConfig.Location)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
