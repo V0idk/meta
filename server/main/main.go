@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"google.golang.org/grpc"
 	"log"
-	self_error "meta/error"
+	. "meta/error"
 	pb "meta/msg"
 	. "meta/rpc"
 	. "meta/rpc/grpc"
@@ -56,12 +56,14 @@ func (s *server) Dispatch(ctx context.Context, in *pb.Msg) (*pb.Msg, error) {
 	log.Printf("Server start to dispatch %s", in)
 	if _, ok := msgTypeMap[in.Type]; !ok {
 		log.Printf("Failed to find msgtype: %s", in.Type)
-		return nil, &self_error.MSGTYPE_NOT_FOUND{}
+		//https://stackoverflow.com/questions/50993815/is-google-protobuf-empty-dangerous-for-backwards-compatibility
+		//grpc不能直接返回nil消息，因为多返回值是golang的特性，为了保持其他语言的兼容性，应该用消息表示错误。
+		return GetErrorMsg(MSGTYPE_NOT_FOUND{})
 	}
 
 	if _, ok := rpcMap[msgTypeMap[in.Type].Rpc]; !ok {
 		log.Printf("Failed to find rpc: %s", in.Type)
-		return nil, &self_error.PROCESS_NOT_FOUND{}
+		return GetErrorMsg(PROCESS_NOT_FOUND{})
 	}
 	rpc := rpcMap[msgTypeMap[in.Type].Rpc]
 	return rpc.Send(in)

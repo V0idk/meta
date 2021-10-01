@@ -3,7 +3,7 @@ package command_executor
 import (
 	"encoding/json"
 	"log"
-	self_error "meta/error"
+	. "meta/error"
 	pb "meta/msg"
 	. "meta/processor/command_executor/msg"
 	"os/exec"
@@ -17,18 +17,18 @@ func (c *CommandExecutor) Command(in *pb.Msg) (*pb.Msg, error) {
 	err := json.Unmarshal(in.Content, &content)
 	if err != nil {
 		log.Printf("Failed to load")
-		return nil, err
+		return GetErrorMsg(err)
 	}
 	result := CommandResult{}
 	cmd := exec.Command(content.Command, content.Args)
 	cmd.Stdout = &result.Stdout
 	cmd.Stderr = &result.Stderr
 	result.Error = cmd.Run()
-
 	resultBytes, err := json.Marshal(result)
 	if err != nil {
+		//https://stackoverflow.com/questions/61949913/why-cant-i-get-a-non-nil-response-and-err-from-grpc
 		log.Printf("could not marshal: %s", result)
-		return nil, err
+		return GetErrorMsg(err)
 	}
 	return &pb.Msg{
 		Type:    pb.OK.Id,
@@ -41,5 +41,5 @@ func (c *CommandExecutor) Dispatch(in *pb.Msg) (*pb.Msg, error) {
 	case pb.COMMAND.Id:
 		return c.Command(in)
 	}
-	return nil, &self_error.MSGTYPE_NOT_FOUND{}
+	return GetErrorMsg(MSGTYPE_NOT_FOUND{})
 }

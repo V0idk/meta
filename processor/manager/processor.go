@@ -3,7 +3,7 @@ package manager
 import (
 	"encoding/json"
 	"log"
-	self_error "meta/error"
+	. "meta/error"
 	pb "meta/msg"
 	. "meta/processor/manager/config"
 	manager_msg "meta/processor/manager/msg"
@@ -27,7 +27,7 @@ func (e *EntryManager) DialHeartbeat(src manager_msg.Entry) (*pb.Msg, error) {
 	result, err := json.Marshal(content)
 	if err != nil {
 		log.Printf("could not marshal: %s", content)
-		return nil, err
+		return GetErrorMsg(err)
 	}
 	msg, err := e.Rpc.Send(&pb.Msg{
 		Type:    pb.HEARTBEAT.Id,
@@ -35,7 +35,7 @@ func (e *EntryManager) DialHeartbeat(src manager_msg.Entry) (*pb.Msg, error) {
 	})
 	if err != nil {
 		log.Printf("Failed to DialHeartbeat: %s", err)
-		return nil, err
+		return GetErrorMsg(err)
 	}
 	log.Printf("Success to DialHeartbeat: %s", e.Entry)
 	return msg, err
@@ -57,7 +57,7 @@ func (m *Manager) Heartbeat(in *pb.Msg) (*pb.Msg, error) {
 	err := json.Unmarshal(in.Content, &content)
 	if err != nil {
 		log.Printf("Failed to load")
-		return nil, err
+		return GetErrorMsg(err)
 	}
 	if _, ok := m.Cache[content.Entry.Id]; !ok {
 		// 不存在则增加entry，且启动后台心跳检测
@@ -81,8 +81,8 @@ func (m *Manager) Heartbeat(in *pb.Msg) (*pb.Msg, error) {
 //为什么DialHeartbeatBackground不放在EntryManager? 因为Heartbeat函数修改了EntryManager状态。所以我们让EntryManager保持纯粹性，只提供属性和方法。
 func (m *Manager) DialHeartbeatBackground(e *EntryManager) {
 	for {
-		_, err := e.DialHeartbeat(m.Entry)
-		if err == nil {
+		msg, _ := e.DialHeartbeat(m.Entry)
+		if msg.Type == pb.OK.Id {
 			e.HeartbeatSuccess()
 		}
 		time.Sleep(m.ManagerConfig.HeartbeatTime * time.Millisecond)
@@ -94,5 +94,5 @@ func (m *Manager) Dispatch(in *pb.Msg) (*pb.Msg, error) {
 	case pb.HEARTBEAT.Id:
 		return m.Heartbeat(in)
 	}
-	return nil, &self_error.MSGTYPE_NOT_FOUND{}
+	return GetErrorMsg(MSGTYPE_NOT_FOUND{})
 }
