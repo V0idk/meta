@@ -2,9 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
-	"os"
+	. "meta/utils/json"
 	"time"
 )
 
@@ -14,17 +13,14 @@ type ManagerConfig struct {
 }
 
 func GetManagerConfig(path string) *ManagerConfig {
-	jsonFile, err := os.Open(path)
+	managerConfig := ManagerConfig{}
+	byteValue, err := GetJsonBytes(path)
 	if err != nil {
-		log.Printf("open %s error", jsonFile)
 		return nil
 	}
-	defer jsonFile.Close()
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	managerConfig := ManagerConfig{}
 	err = json.Unmarshal(byteValue, &managerConfig)
 	if err != nil {
-		log.Printf("Unmarshal %s error", jsonFile)
+		log.Printf("Unmarshal %s error", path)
 		return nil
 	}
 	return &managerConfig

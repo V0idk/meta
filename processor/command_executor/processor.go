@@ -6,7 +6,7 @@ import (
 	. "meta/error"
 	pb "meta/msg"
 	. "meta/processor/command_executor/msg"
-	"os/exec"
+	. "meta/utils/exec"
 )
 
 type CommandExecutor struct {
@@ -19,11 +19,12 @@ func (c *CommandExecutor) Command(in *pb.Msg) (*pb.Msg, error) {
 		log.Printf("Failed to load")
 		return GetErrorMsg(err)
 	}
-	result := CommandResult{}
-	cmd := exec.Command(content.Command, content.Args)
-	cmd.Stdout = &result.Stdout
-	cmd.Stderr = &result.Stderr
-	result.Error = cmd.Run()
+	stdout, stderr, exitCode := ExecCommand(content.Command, content.Args...)
+	result := CommandResult{
+		Stdout: stdout,
+		Stderr: stderr,
+		Status: exitCode,
+	}
 	resultBytes, err := json.Marshal(result)
 	if err != nil {
 		//https://stackoverflow.com/questions/61949913/why-cant-i-get-a-non-nil-response-and-err-from-grpc

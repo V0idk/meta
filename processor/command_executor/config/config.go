@@ -2,9 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
-	"os"
+	. "meta/utils/json"
 )
 
 type CommandExecutorConfig struct {
@@ -12,17 +11,14 @@ type CommandExecutorConfig struct {
 }
 
 func GetCommandExecutorConfig(path string) *CommandExecutorConfig {
-	jsonFile, err := os.Open(path)
+	commandExecutorConfig := CommandExecutorConfig{}
+	byteValue, err := GetJsonBytes(path)
 	if err != nil {
-		log.Printf("open %s error", jsonFile)
 		return nil
 	}
-	defer jsonFile.Close()
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	commandExecutorConfig := CommandExecutorConfig{}
 	err = json.Unmarshal(byteValue, &commandExecutorConfig)
 	if err != nil {
-		log.Printf("Unmarshal %s error", jsonFile)
+		log.Printf("Unmarshal %s error", path)
 		return nil
 	}
 	return &commandExecutorConfig

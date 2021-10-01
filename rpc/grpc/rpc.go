@@ -5,7 +5,6 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	pb "meta/msg"
-	"time"
 )
 
 type Grpc struct {
@@ -19,8 +18,6 @@ func (s *Grpc) Send(in *pb.Msg) (*pb.Msg, error) {
 	}
 	defer conn.Close()
 	c := pb.NewMsgServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	msg, err := c.Dispatch(ctx, in)
+	msg, err := c.Dispatch(context.Background(), in)
 	return msg, err
 }

@@ -12,7 +12,6 @@ import (
 	. "meta/processor/manager/msg"
 	"strconv"
 	"sync"
-	"time"
 )
 
 func dial(type_param string, content []byte) {
@@ -26,10 +25,7 @@ func dial(type_param string, content []byte) {
 	}
 	defer conn.Close()
 	c := pb.NewMsgServiceClient(conn)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-	msg, err := c.Dispatch(ctx, &pb.Msg{
+	msg, err := c.Dispatch(context.Background(), &pb.Msg{
 		Type:    type_param,
 		Content: content,
 	})
@@ -66,7 +62,9 @@ func testManager() {
 
 func testCommand() {
 	content := &CommandContent{}
-	content.Command = "ls"
+	content.Command = "cmd"
+	content.Args = append(content.Args, "/C")
+	content.Args = append(content.Args, "dir")
 	result, err := json.Marshal(content)
 	if err != nil {
 		log.Printf("could not marshal: %s", content)
