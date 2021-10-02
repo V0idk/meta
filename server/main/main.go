@@ -7,6 +7,7 @@ import (
 	"log"
 	. "meta/error"
 	pb "meta/msg"
+	daemon "meta/process"
 	. "meta/rpc"
 	. "meta/rpc/grpc"
 	"meta/server/config"
@@ -28,8 +29,13 @@ func loadConfig() {
 	for _, item := range serverConfig.Msgtype {
 		msgTypeMap[item.Type] = item
 	}
+	pd := daemon.ProcessDaemon{}
 	for _, item := range serverConfig.Rpc {
 		rpcConfigMap[item.Name] = item
+		pd.Add(daemon.Process{
+			Command: item.Command,
+			Args:    item.Args,
+		})
 	}
 	for _, v := range rpcConfigMap {
 		if v.Type == "grpc" {

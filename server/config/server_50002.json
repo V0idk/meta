@@ -25,7 +25,12 @@
       "param": {
         "location": "127.0.0.1:50012"
       },
-      "command": "manager/main/main.exe XXXXX"
+      "command": "go",
+      "args": [
+        "run",
+        "processor/manager/main/main.go",
+        "processor/manager/config/manager_50012.json"
+      ]
     },
     {
       "name": "command_executor",
@@ -33,7 +38,12 @@
       "param": {
         "location": "127.0.0.1:50022"
       },
-      "command": "manager/main/main.exe XXXXX"
+      "command": "go",
+      "args": [
+        "run",
+        "processor/command_executor/main/main.go",
+        "processor/command_executor/config/command_50022.json"
+      ]
     }
   ]
 }

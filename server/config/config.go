@@ -17,8 +17,9 @@ type RpcConfig struct {
 	Type string `json:"type"`
 	//https://stackoverflow.com/questions/58073214/is-there-a-way-to-dynamically-unmarshal-json-base-on-content
 	//动态加载，根据rpc type决定
-	Param   json.RawMessage `json:"Param"`   //取决于Rpc的类型参数.
-	Command string          `json:"command"` //启动命令，暂未使用
+	Param   json.RawMessage `json:"Param"` //取决于Rpc的类型参数.
+	Command string          `json:"command"`
+	Args    []string        `json:"args"`
 }
 
 type ServerConfig struct {

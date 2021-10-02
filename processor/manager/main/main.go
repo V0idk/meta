@@ -32,7 +32,7 @@ func loadConfig() {
 	}
 	m = Manager{
 		Entry: Entry{
-			Id: managerConfig.Id,
+			Id: managerConfig.Entry.Id,
 		},
 		Cache:         make(map[string]*EntryManager),
 		ManagerConfig: *managerConfig,

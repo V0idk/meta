@@ -13,14 +13,14 @@ import (
 	"sync"
 )
 
-func dial(type_param string, content []byte) {
+func dial(type_param string, content []byte) (*pb.Msg, error) {
 	address := fmt.Sprintf("127.0.0.1:50000")
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Printf("did not connect: %v", err)
 		wg.Done()
-		return
+		return nil, nil
 	}
 	defer conn.Close()
 	c := pb.NewMsgServiceClient(conn)
@@ -29,6 +29,7 @@ func dial(type_param string, content []byte) {
 		Content: content,
 	})
 	log.Printf("dial result: %s, err: %s", msg, err)
+	return msg, err
 }
 
 var wg sync.WaitGroup
@@ -61,15 +62,25 @@ func testManager(id string, location string) {
 
 func testCommand() {
 	content := &CommandContent{}
-	content.Command = "cmd"
-	content.Args = append(content.Args, "/C")
-	content.Args = append(content.Args, "dir")
+	content.Command = "go"
+	content.Args = append(content.Args, "run")
+	content.Args = append(content.Args, "processor\\manager\\main\\main.go")
+	content.Args = append(content.Args, "processor\\manager\\config\\manager_50012.json")
 	result, err := json.Marshal(content)
 	if err != nil {
 		log.Printf("could not marshal: %s", content)
 		return
 	}
-	dial(pb.COMMAND.Id, result)
+	msg, err := dial(pb.COMMAND.Id, result)
+	if err == nil {
+		cmdResult := CommandResult{}
+		err := json.Unmarshal(msg.Content, &cmdResult)
+		if err != nil {
+			log.Printf("%s", err)
+		} else {
+			log.Printf("%s", cmdResult)
+		}
+	}
 }
 
 func testBatch() {

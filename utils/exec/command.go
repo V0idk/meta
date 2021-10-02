@@ -9,7 +9,7 @@ import (
 
 func ExecCommand(name string, arg ...string) ([]byte, []byte, int) {
 	var err error
-	var exitCode int
+	exitCode := 1
 	var stdout, stderr bytes.Buffer
 	cmd := exec.Command(name, arg...)
 	cmd.Stdout = &stdout

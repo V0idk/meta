@@ -3,12 +3,13 @@ package config
 import (
 	"encoding/json"
 	"log"
+	. "meta/processor/manager/msg"
 	. "meta/utils/json"
 	"time"
 )
 
 type ManagerConfig struct {
-	Id            string        `json:"id"`
+	Entry         Entry         `json:"entry"`
 	Location      string        `json:"location"`
 	HeartbeatTime time.Duration `json:"heartbeat_time"`
 }
