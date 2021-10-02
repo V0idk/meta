@@ -87,7 +87,7 @@ func (m *Manager) Register(in *pb.Msg) (*pb.Msg, error) {
 		// 不存在则增加entry，且启动后台心跳检测
 		tmp := &EntryManager{
 			Entry:       content.Entry,
-			Rpc:         &Grpc{content.Entry.Location},
+			Rpc:         &Grpc{Location: content.Entry.Location},
 			SuccessTime: time.Now(),
 		}
 		m.Cache[content.Entry.Id] = tmp
@@ -127,7 +127,7 @@ func (m *Manager) BatchDial(entrys []Entry, in *pb.Msg) []PairResult {
 		}
 		go func(which Entry) {
 			defer wg.Done()
-			rpc := &Grpc{which.Location}
+			rpc := &Grpc{Location: which.Location}
 			msg, err := rpc.Send(in)
 			result <- PairResult{
 				Entry: which,

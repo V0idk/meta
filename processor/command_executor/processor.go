@@ -19,7 +19,7 @@ func (c *CommandExecutor) Command(in *pb.Msg) (*pb.Msg, error) {
 		log.Printf("Failed to load")
 		return GetErrorMsg(err)
 	}
-	stdout, stderr, exitCode := ExecCommand(content.Command, content.Args...)
+	stdout, stderr, exitCode := RunCommand(content.Command, content.Args...)
 	result := CommandResult{
 		Stdout: stdout,
 		Stderr: stderr,

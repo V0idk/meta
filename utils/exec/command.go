@@ -7,7 +7,7 @@ import (
 	"syscall"
 )
 
-func ExecCommand(name string, arg ...string) ([]byte, []byte, int) {
+func RunCommand(name string, arg ...string) ([]byte, []byte, int) {
 	var err error
 	exitCode := 1
 	var stdout, stderr bytes.Buffer

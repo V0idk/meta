@@ -18,9 +18,10 @@ type ProcessDaemon struct {
 func (pd *ProcessDaemon) Add(p Process) {
 	go func() {
 		for {
+			log.Printf("ProcessDaemon start: %s", p)
 			cmd := exec.Command(p.Command, p.Args...)
 			err := cmd.Run()
-			log.Printf("Run finish with: %s", err)
+			log.Printf("ProcessDaemon finish: %s, err: %s", p, err)
 			time.Sleep(5 * time.Second)
 		}
 	}()

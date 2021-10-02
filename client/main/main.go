@@ -117,6 +117,22 @@ func testBatch() {
 	dial(pb.BATCH.Id, batchContentResult)
 }
 
+func testFor() {
+	type a struct {
+		a1 string
+	}
+	al := []a{
+		{"000"}, {"111"},
+	}
+	for _, e := range al {
+		go func() {
+			log.Printf("content: %s", e)
+		}()
+	}
+}
+
+//序列化reflect.Type?
+//https://stackoverflow.com/questions/43770692/marshal-unmarshal-reflect-type
 func main() {
-	testBatch()
+	//testBatch()
 }
