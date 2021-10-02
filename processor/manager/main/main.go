@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"log"
 	pb "meta/msg"
@@ -33,8 +32,7 @@ func loadConfig() {
 	}
 	m = Manager{
 		Entry: Entry{
-			Id:       uuid.New().String(),
-			Location: managerConfig.Location,
+			Id: managerConfig.Id,
 		},
 		Cache:         make(map[string]*EntryManager),
 		ManagerConfig: *managerConfig,

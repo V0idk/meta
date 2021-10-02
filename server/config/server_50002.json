@@ -1,5 +1,5 @@
 {
-  "location": "127.0.0.1:50000",
+  "location": "127.0.0.1:50002",
   "msgtype": [
     {
       "type": "heartbeat",
@@ -23,7 +23,7 @@
       "name": "manager",
       "type": "grpc",
       "param": {
-        "location": "127.0.0.1:50010"
+        "location": "127.0.0.1:50012"
       },
       "command": "manager/main/main.exe XXXXX"
     },
@@ -31,7 +31,7 @@
       "name": "command_executor",
       "type": "grpc",
       "param": {
-        "location": "127.0.0.1:50020"
+        "location": "127.0.0.1:50022"
       },
       "command": "manager/main/main.exe XXXXX"
     }

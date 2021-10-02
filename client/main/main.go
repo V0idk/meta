@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"log"
 	pb "meta/msg"
@@ -48,16 +47,16 @@ func testQuery() {
 }
 
 //==============================
-func testManager() {
+func testManager(id string, location string) {
 	content := &HeartbeatContent{}
-	content.Entry.Id = uuid.New().String()
-	content.Entry.Location = "127.0.0.1:50001"
+	content.Entry.Id = id
+	content.Entry.Location = location
 	result, err := json.Marshal(content)
 	if err != nil {
 		log.Printf("could not marshal: %s", content)
 		return
 	}
-	dial(pb.HEARTBEAT.Id, result)
+	dial(pb.REGISTER.Id, result)
 }
 
 func testCommand() {
@@ -73,6 +72,40 @@ func testCommand() {
 	dial(pb.COMMAND.Id, result)
 }
 
+func testBatch() {
+	testManager("50001", "127.0.0.1:50001")
+	testManager("50002", "127.0.0.1:50002")
+
+	content := &CommandContent{}
+	content.Command = "cmd"
+	content.Args = append(content.Args, "/C")
+	content.Args = append(content.Args, "dir")
+	result, err := json.Marshal(content)
+	if err != nil {
+		log.Printf("could not marshal: %s", content)
+		return
+	}
+	msg := pb.Msg{
+		Type:    pb.COMMAND.Id,
+		Content: result,
+	}
+
+	batchContent := BatchContent{
+		Type: ALL.Id,
+		Entrys: []Entry{
+			{Id: "50001"},
+			{Id: "50002"},
+		},
+		Msg: &msg,
+	}
+	batchContentResult, err := json.Marshal(batchContent)
+	if err != nil {
+		log.Printf("could not marshal: %s", content)
+		return
+	}
+	dial(pb.BATCH.Id, batchContentResult)
+}
+
 func main() {
-	testCommand()
+	testBatch()
 }

@@ -8,6 +8,7 @@ import (
 )
 
 type ManagerConfig struct {
+	Id            string        `json:"id"`
 	Location      string        `json:"location"`
 	HeartbeatTime time.Duration `json:"heartbeat_time"`
 }

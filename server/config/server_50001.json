@@ -4,6 +4,18 @@
     {
       "type": "heartbeat",
       "rpc": "manager"
+    },
+    {
+      "type": "command",
+      "rpc": "command_executor"
+    },
+    {
+      "type": "batch",
+      "rpc": "manager"
+    },
+    {
+      "type": "register",
+      "rpc": "manager"
     }
   ],
   "rpc": [
@@ -12,6 +24,14 @@
       "type": "grpc",
       "param": {
         "location": "127.0.0.1:50011"
+      },
+      "command": "manager/main/main.exe XXXXX"
+    },
+    {
+      "name": "command_executor",
+      "type": "grpc",
+      "param": {
+        "location": "127.0.0.1:50021"
       },
       "command": "manager/main/main.exe XXXXX"
     }
