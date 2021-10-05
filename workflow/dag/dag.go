@@ -72,7 +72,7 @@ func (d *DAGExecutor) AddEdge(from, to string) error {
 		return NODE_NOT_FOUND{}
 	}
 	d.NodeMap[from].Child = append(d.NodeMap[from].Child, d.NodeMap[to])
-	d.NodeMap[to].Parent = append(d.NodeMap[from].Parent, d.NodeMap[from])
+	d.NodeMap[to].Parent = append(d.NodeMap[to].Parent, d.NodeMap[from])
 	return nil
 }
 
@@ -99,7 +99,7 @@ func (d *DAGExecutor) Run() {
 			item := heap.Pop(&d.Pq).(*Item)
 			go func(item *Item) {
 				node := d.NodeMap[item.Value]
-				log.Printf("Run %s", node.Id)
+				log.Printf("Start %s", node.Id)
 				node.Func(node)
 				// 所有的状状态由Func控制，实现最大的自由化
 				if node.status == FINISHED {
@@ -108,7 +108,9 @@ func (d *DAGExecutor) Run() {
 						d.Pq.Update(childItem, childItem.Value, childItem.Priority-1)
 					}
 				}
+				// 度数操作必须在发送chan之前。这样确保接收者下次循环前可以启动新的协程。
 				d.finished <- item.Value
+				log.Printf("Finished %s", node.Id)
 			}(item)
 		}
 		//必须在同一协程中确定d.finished的收发的次数。否则在外部你将无法确定需要收的次数。
